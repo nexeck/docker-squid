@@ -1,0 +1,40 @@
+#!/usr/bin/with-contenv sh
+
+init_ssl() {
+    cert=${SQUID_SSL_DIR}/squidca.pem
+    dh=${SQUID_SSL_DIR}/dhparam.pem
+
+    if [ ! -f ${cert} ]; then
+        echo "$(date -R) : Generating CA file..."
+        openssl req -new -newkey rsa:2048 -sha256 -days 90 -nodes -x509 -config ${SQUID_SSL_DIR}/openssl.cnf -keyout ${cert} -out ${cert}
+    fi
+
+    if [ ! -f ${dh} ]; then
+        echo "$(date -R) : Generating DH params..."
+        openssl dhparam -outform PEM -out ${dh} 2048
+    fi
+}
+
+init_ssl_cache() {
+    # Initialise ssl cache dir if required
+    if [ ! -f "${SQUID_CACHE_DIR}/ssl_db/index.txt" ]; then
+        s6-setuidgid ${SQUID_USER} /usr/lib/squid/ssl_crtd -c -s ${SQUID_CACHE_DIR}/ssl_db/
+        ret=$?
+        if [ $ret -ne 0 ]; then
+            echo "$(date -R) : Error initialising SSL Cache directory"
+            exit $ret
+        fi
+    fi
+}
+
+init_cache() {
+    if [ ${SQUID_DISK_CACHE_SIZE} -gt 0 ]; then
+        if [ ! -f "${SQUID_CACHE_DIR}/00" ]; then
+            s6-setuidgid ${SQUID_USER} /usr/sbin/squid -z
+        fi
+    fi
+}
+
+init_ssl
+init_ssl_cache
+init_cache

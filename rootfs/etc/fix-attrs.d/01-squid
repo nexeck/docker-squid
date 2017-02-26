@@ -1,0 +1,2 @@
+/var/cache/squid false squid:squid 0644 0755
+/var/log/squid false squid:nobody 0664 0775

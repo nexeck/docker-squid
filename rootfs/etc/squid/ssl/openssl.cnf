@@ -1,0 +1,23 @@
+[ req ]
+default_bits           = 2048
+distinguished_name     = req_distinguished_name
+attributes             = req_attributes
+req_extensions         = v3_ca
+prompt                 = no
+
+[ req_distinguished_name ]
+C                      = DE
+ST                     = Squid State
+L                      = Squid Locale
+O                      = Squid Org
+OU                     = Squid OU
+CN                     = Squid
+emailAddress           = test@example.org
+
+[ req_attributes ]
+
+[ v3_ca ]
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+basicConstraints       = critical, CA:true
+keyUsage               = cRLSign, keyCertSign
